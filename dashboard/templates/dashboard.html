@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Example Wallaroo Application</title>
+	<style>
+		* {
+			font-family: Verdana, Geneva, sans-serif;
+			box-sizing:border-box;
+		}
+	</style>
+	<script></script>
+	<script></script>
+</head>
+<body>
+	<div style="margin: 0 auto; max-width: 1000px; background-color: #DDDDDD">
+		<h1 style="width:100%; background-color: lightblue; padding: 10px">Popular GitHub Repositories</h1>
+		<ol style="padding: 0 1em 1em 1em">
+		{% for repo in popular %}
+			<li style="padding: 0.5em; border: 1px solid black; background-color: white; margin: 1em">
+				<div><strong>Name:</strong> <a href="https://github.com/{{repo['repo']}}">{{repo['repo']}}</a></div>
+				<div><strong>Stars/24hr:</strong> {{repo['stars']}}</div>
+				{% if repo['recent_events'].__len__() > 0 %}
+				<div>
+					<strong>Recent Events:</strong>
+					{% for event in repo['recent_events'] %}
+					<ul>
+						{% if event['type'] == 'ForkEvent' %}
+							<li>Forked by {{event['actor']['display_login']}}</li>
+						{% elif event['type'] == 'PullRequestEvent' %}
+							<li>Pull request #{{event['payload']['pull_request']['number']}}: {{event['payload']['pull_request']['title']}}</li>
+						{% endif %}
+					</ul>
+					{% endfor %}
+				</div>
+				{% endif %}
+			</li>
+		{% endfor %}
+		</ol>
+	</div>
+</body>
+</html>

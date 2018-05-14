@@ -1,0 +1,86 @@
+version: '3'
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+  kafka:
+    image: 'wurstmeister/kafka'
+    ports:
+      # Standard Kafka port in the case you'd like to use
+      # any of your own tools to connect to Kafka and watch
+      # for data.
+      - "9092:9092"
+    environment:
+      # We use this advertized hostname from our service name.
+      # If you use more than one node, you can label each service
+      # uniquely to avoid dealing with your host interface IP
+      # here (localhost will not work since that's local to a
+      # container, not the host).
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_CREATE_TOPICS: "gharchive:4:1,leaderboard:1:1"
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    links:
+      - zookeeper
+  # This service loads in data from the GitHub Archive project at
+  # a specified rate.
+  archive_streamer:
+    build: archive_streamer
+    # We only speed up by around 8x here to avoid overloading
+    # our single Kafka node. It seems to handle this on most
+    # systems but you can ajust that up or down.
+    command: "python /code/stream.py --speedup 48 --kafka kafka:9092"
+    links:
+      - kafka
+  # This dashboard serves as a example of the output we generate.
+  # It's minimal and mostly for demonstration purposes but can
+  # be extended or swapped out for something else. We connect to
+  # Kafka directly here.
+  dashboard:
+    build: dashboard
+    command: python /code/dashboard.py
+    ports:
+      # Flask Web UI
+      - "127.0.0.1:5000:5000"
+    links:
+      - kafka
+      - zookeeper
+  # The primary instance of the star_leaders wallaroo app
+  # is also known as the initializer. This instance will
+  # be responsible for managing the clusters when other
+  # worker nodes join.
+  wallaroo_primary_worker:
+    build: star_leaders
+    command: bash /code/primary.sh
+    privileged: true
+    ports:
+      # cluster control channel port
+      - "12500:12500"
+      # cluster data channel port
+      - "12501:12501"
+      # external control port
+      - "5050:5050"
+    links:
+      - wallaroo_metrics_ui
+      - kafka
+  # Secondary instances allow us to expand work to other
+  # machines, or for CPython other cores to get around the
+  # limitations of the GIL. We only start one for illustration.
+  wallaroo_secondary_worker:
+    build: star_leaders
+    command: bash /code/secondary.sh
+    privileged: true
+    links:
+      - wallaroo_metrics_ui
+      # We'd like to have a link to the primary worker
+      # in order to initialize this worker node.
+      - wallaroo_primary_worker
+      - kafka
+  # Setup the Metrics UI so we can watch our application performance
+  wallaroo_metrics_ui:
+    image: wallaroo-labs-docker-wallaroolabs.bintray.io/release/metrics_ui:0.4.2
+    ports:
+      # The web UI
+      - "4000:4000"
+      # Metrics collection port
+      - "5001:5001"

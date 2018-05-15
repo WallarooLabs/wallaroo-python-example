@@ -1,6 +1,6 @@
 # Troubleshooting Guide
 
-There are a few gotchas that you might run into. We've documented the ones we are aware of here and will update
+There are a few gotchas that you might run into. We've documented the ones we are aware of here and will update it as we come across any reported issues. You're also welcome to drop by the `#wallaroo` IRC channel on [Freenode](http://webchat.freenode.net?randomnick=1&channels=%23wallaroo&prompt=1).
 
 ## Kafka fails to start
 

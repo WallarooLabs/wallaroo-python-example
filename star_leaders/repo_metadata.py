@@ -126,11 +126,8 @@ class RepoMetadata(object):
         for hour in self.window:
             for repo in hour:
                 data = hour[repo]
-                cached = cache.get(repo)
-                if cached:
-                    cached['stars'] += data['stars']
-                else:
-                    cache[repo] = {'stars': data['stars']}
+                cached = cache.get(repo, {'stars': 0})
+                cached['stars'] += data['stars']
         self._window_cache = cache
 
     def _trim_window(self):

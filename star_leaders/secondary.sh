@@ -10,5 +10,5 @@ machida --application-module star_leaders \
   --kafka_sink_max_message_size 250000 --kafka_sink_max_produce_buffer_ms 10 \
   --metrics wallaroo_metrics_ui:5001 \
   --ponynoblock --ponythreads=1 \
-  --join leaderboard_primary:12500 \
+  --join wallaroo_primary_worker:12500 \
   --name secondary_worker_1

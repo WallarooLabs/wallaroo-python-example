@@ -11,8 +11,8 @@ leaders = {}
 
 @app.route('/')
 def dashboard():
-    top25 = sorted(leaders.values(), key=lambda leader: leader['stars'], reverse=True)[:24]
-    return render_template('dashboard.html', popular=top25)
+    top10 = sorted(leaders.values(), key=lambda leader: leader['stars'], reverse=True)[:11]
+    return render_template('dashboard.html', popular=top10)
 
 def connect(server):
     """

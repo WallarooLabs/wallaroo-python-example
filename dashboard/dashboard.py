@@ -11,7 +11,11 @@ leaders = {}
 
 @app.route('/')
 def dashboard():
-    top10 = sorted(leaders.values(), key=lambda leader: leader['stars'], reverse=True)[:11]
+    repos = []
+    for partition in leaders.values():
+        for repo in partition:
+            repos.append(repo)
+    top10 = sorted(repos, key=lambda repo: repo['stars'], reverse=True)[:11]
     return render_template('dashboard.html', popular=top10)
 
 def connect(server):
@@ -34,8 +38,7 @@ def connect(server):
 
 def consume(consumer):
     for message in consumer:
-        for leader in message.value['leaders']:
-            leaders[leader['repo']] = leader
+        leaders[message.value['partition']] = message.value['leaders']
 
 
 if __name__ == "__main__":

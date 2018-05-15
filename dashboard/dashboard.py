@@ -15,7 +15,7 @@ def dashboard():
     for partition in leaders.values():
         for repo in partition:
             repos.append(repo)
-    top10 = sorted(repos, key=lambda repo: repo['stars'], reverse=True)[:11]
+    top10 = sorted(repos, key=lambda repo: repo['stars'], reverse=True)[:10]
     return render_template('dashboard.html', popular=top10)
 
 def connect(server):

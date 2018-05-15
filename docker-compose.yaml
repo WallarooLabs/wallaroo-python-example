@@ -18,7 +18,7 @@ services:
       # here (localhost will not work since that's local to a
       # container, not the host).
       KAFKA_ADVERTISED_HOST_NAME: kafka
-      KAFKA_CREATE_TOPICS: "gharchive:4:1,leaderboard:1:1"
+      KAFKA_CREATE_TOPICS: "gharchive:8:1,leaderboard:1:1"
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
     links:
       - zookeeper
@@ -29,7 +29,7 @@ services:
     # We only speed up by around 8x here to avoid overloading
     # our single Kafka node. It seems to handle this on most
     # systems but you can ajust that up or down.
-    command: "python /code/stream.py --speedup 48 --kafka kafka:9092"
+    command: "python /code/stream.py --speedup 24 --kafka kafka:9092"
     links:
       - kafka
   # This dashboard serves as a example of the output we generate.

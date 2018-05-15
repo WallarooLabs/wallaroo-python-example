@@ -130,7 +130,7 @@ class RepoMetadata(object):
                 if cached:
                     cached['stars'] += data['stars']
                 else:
-                    cache[repo] = data
+                    cache[repo] = {'stars': data['stars']}
         self._window_cache = cache
 
     def _trim_window(self):

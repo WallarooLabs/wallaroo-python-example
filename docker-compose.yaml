@@ -1,27 +1,5 @@
 version: '3'
 services:
-  zookeeper:
-    image: wurstmeister/zookeeper
-    ports:
-      - "2181:2181"
-  kafka:
-    image: 'wurstmeister/kafka'
-    ports:
-      # Standard Kafka port in the case you'd like to use
-      # any of your own tools to connect to Kafka and watch
-      # for data.
-      - "9092:9092"
-    environment:
-      # We use this advertized hostname from our service name.
-      # If you use more than one node, you can label each service
-      # uniquely to avoid dealing with your host interface IP
-      # here (localhost will not work since that's local to a
-      # container, not the host).
-      KAFKA_ADVERTISED_HOST_NAME: kafka
-      KAFKA_CREATE_TOPICS: "gharchive:8:1,leaderboard:1:1"
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-    links:
-      - zookeeper
   # This service loads in data from the GitHub Archive project at
   # a specified rate.
   archive_streamer:
@@ -42,9 +20,7 @@ services:
     ports:
       # Flask Web UI
       - "127.0.0.1:5000:5000"
-    links:
-      - kafka
-      - zookeeper
+    links: []
   # The primary instance of the star_leaders wallaroo app
   # is also known as the initializer. This instance will
   # be responsible for managing the clusters when other
@@ -62,7 +38,6 @@ services:
       - "5050:5050"
     links:
       - wallaroo_metrics_ui
-      - kafka
   # Secondary instances allow us to expand work to other
   # machines, or for CPython other cores to get around the
   # limitations of the GIL. We only start one for illustration.
@@ -75,7 +50,6 @@ services:
       # We'd like to have a link to the primary worker
       # in order to initialize this worker node.
       - wallaroo_primary_worker
-      - kafka
   # Setup the Metrics UI so we can watch our application performance
   wallaroo_metrics_ui:
     image: wallaroo-labs-docker-wallaroolabs.bintray.io/release/metrics_ui:0.4.2
